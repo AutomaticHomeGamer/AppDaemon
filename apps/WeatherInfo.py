@@ -4,7 +4,7 @@ from time import *
 import datetime
 import appdaemon.appapi as appapi
 
-class InfoMaker(hass.Hass):
+class Report(hass.Hass):
     
     def initialize(self):
         runtime = datetime.time(6, 0, 0) #Run everyday at 6am 
