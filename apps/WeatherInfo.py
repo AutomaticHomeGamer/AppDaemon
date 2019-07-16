@@ -12,8 +12,7 @@ class Report(hass.Hass):
         self.run_once(self.dailyWeatherStatement, runtime)
         
         afternoon = datetime.time(16, 0, 0) #Run everyday at 4pm
-        self.run_once(self.afternoonWeatherStatement, afternoon)
-        self.run_in(self.afternoonWeatherStatement, 5)
+        self.run_once(self.twoHourWeatherStatement, afternoon)
 
        
     def dailyWeatherStatement(self, *args, **kwargs):
@@ -38,7 +37,7 @@ class Report(hass.Hass):
         self.notify(self.dailySummary)
         return self.weatherStatement
 
-    def afternoonWeatherStatement(self, *args, **kwargs):
+    def twoHourWeatherStatement(self, *args, **kwargs):
         self.currTemp = self.get_state("sensor.dark_sky_temperature_0h")
         self.currPrecip = self.get_state("sensor.dark_sky_precip_0h")
         self.currPrecipIntensity = self.get_state("sensor.dark_sky_precip_intensity_0h")
@@ -87,7 +86,16 @@ class Report(hass.Hass):
         if(len(self.precipText) == 0):
             self.precipText = "Clear weather"
 
-        self.AfternoonText = "{0} {1} {2}".format(self.stormText,
+        self.tempText = ""
+        if(self.currTemp > self.nextTemp):
+            self.tempText = "Temperature is {0} dropping to {1}".format(self.currTemp, self.nextTemp)
+        elif(self.nextTemp > self.currTemp):
+            self.tempText = "Temperature is {0} rising to {1}".format(self.currTemp, self.nextTemp)
+        elif(self.currTemp == self.nextTemp):
+            self.tempText = "Temperature holding steady at {0}".format(self.currTemp)
+
+        self.AfternoonText = "{0} {1} {2} {3}".format( self.tempText,
+                                                  self.stormText,
                                                   self.windText,
                                                   self.precipText)
         self.notify(self.AfternoonText)
