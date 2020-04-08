@@ -16,6 +16,10 @@ class TimedLight(hass.Hass):
         self.timeout = self.args["timeout"]
         self.sensor = self.args["sensor"]
         self.lights = self.args["lights"]
+        if( "mode" in self.args.keys()):
+            self.mode = self.args["mode"]
+        else:
+            self.mode = "None"
         self.level = 255
         if "level" in self.args:
             self.level = self.args["level"]
@@ -33,26 +37,27 @@ class TimedLight(hass.Hass):
         endTime = endTime.replace(hour=self.endHour, minute=self.endMin, second=0, microsecond=0)
 
         self.debugInfo ( "Start: " + startTime.strftime("%H:%M:%S") + " | Now: " + currTime.strftime("%H:%M:%S") + " | End; " + endTime.strftime("%H:%M:%S") );
-        
-        if(self.now_is_between( startTime.strftime("%H:%M:%S"), endTime.strftime("%H:%M:%S"))):
-             
-            if "switch" in self.lights:
-                self.debugInfo("This is a switch");
-                self.turn_on(self.lights)
-            else:
-                self.debugInfo("This is a group/light")
-                self.turn_on(self.lights, brightness=self.level)
+       
+        if (self.mode == self.get_state("sensor.home_mode") or self.mode == "None"):
+            if(self.now_is_between( startTime.strftime("%H:%M:%S"), endTime.strftime("%H:%M:%S"))):
+                 
+                if "switch" in self.lights:
+                    self.debugInfo("This is a switch");
+                    self.turn_on(self.lights)
+                else:
+                    self.debugInfo("This is a group/light")
+                    self.turn_on(self.lights, brightness=self.level)
 
-            #self.turn_on(self.lights)
-            if(self.isGoing == False):
-                self.debugInfo("Turning " + self.lights + " on for " + str(self.timeout) + " seconds")
-                self.currentTimer = self.run_in(self.light_off, self.timeout)
-                self.isGoing=True
-            else:
-                #self.notify("Resetting timer")
-                self.debugInfo("Resetting timer")
-                self.cancel_timer(self.currentTimer)
-                self.currentTimer = self.run_in(self.light_off, self.timeout)
+                #self.turn_on(self.lights)
+                if(self.isGoing == False):
+                    self.debugInfo("Turning " + self.lights + " on for " + str(self.timeout) + " seconds")
+                    self.currentTimer = self.run_in(self.light_off, self.timeout)
+                    self.isGoing=True
+                else:
+                    #self.notify("Resetting timer")
+                    self.debugInfo("Resetting timer")
+                    self.cancel_timer(self.currentTimer)
+                    self.currentTimer = self.run_in(self.light_off, self.timeout)
 
     def light_off(self, kwargs):
         self.turn_off(self.lights)

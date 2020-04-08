@@ -9,10 +9,10 @@ class Report(hass.Hass):
     def initialize(self):
         runtime = datetime.time(6, 0, 0) #Run everyday at 6am 
         #self.run_in(self.dailyWeatherStatement, 5)
-        self.run_once(self.dailyWeatherStatement, runtime)
+        self.run_daily(self.dailyWeatherStatement, runtime)
         
         afternoon = datetime.time(16, 0, 0) #Run everyday at 4pm
-        self.run_once(self.twoHourWeatherStatement, afternoon)
+        self.run_daily(self.twoHourWeatherStatement, afternoon)
 
        
     def dailyWeatherStatement(self, *args, **kwargs):
